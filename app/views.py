@@ -8,7 +8,7 @@ This file creates your application.
 
 from app import app
 from flask import render_template, request, redirect, url_for
-
+import smtplib
 
 ###
 # Routing for your application.
@@ -18,8 +18,44 @@ from flask import render_template, request, redirect, url_for
 def home():
     """Render website's home page."""
     return render_template('home.html')
+  
 
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
+    
+@app.route('/send', methods = ['POST'])
+def sendemail():
+    username = 'simorah@gmail.com'
+    password = 'tymzdnhqzdmcuatz'
+    
+    fromname = request.form['name']
+    fromemail = request.form['email']
+    fromsubject = request.form['subject']
+    msg = request.form['msg']
+    toemail = username
+    message = """From: {} <{}>
+    To: {} <{}>
+    Subject: {}
 
+    {}
+    """
+
+    messagetosend = message.format(
+                              fromname,
+                              fromemail,
+                              "Contact Form",
+                              toemail,
+                              fromsubject,
+                              msg)
+    
+    server = smtplib.SMTP('smtp.gmail.com:587')
+    server.starttls()
+    server.login(username,password)
+    server.sendmail(fromemail,toemail,messagetosend)
+    server.quit()
+    return render_template('contact.html')
+    
 @app.route('/about/')
 def about():
     """Render the website's about page."""
